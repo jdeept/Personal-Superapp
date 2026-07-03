@@ -15,12 +15,9 @@ export function CommandCenter() {
   
   const [currentStreak, setCurrentStreak] = useState(0);
 
-  const priorities = [
-    { id: '1', label: "Review watchlist", done: false },
-    { id: '2', label: "Client meeting", done: false },
-    { id: '3', label: "Workout", done: true },
-    { id: '4', label: "Journal yesterday's trades", done: false },
-  ];
+  const [priorities, setPriorities] = useState<any[]>([]);
+  const [newPriorityLabel, setNewPriorityLabel] = useState("");
+  const [isAddingPriority, setIsAddingPriority] = useState(false);
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -33,7 +30,7 @@ export function CommandCenter() {
             const latest = nwData[nwData.length - 1];
             setNetWorth(latest.totalValue || 0);
             setCashAvailable(latest.liquidCash || 0);
-            setTodayRiskBudget((latest.totalValue || 0) * 0.01); // 1% risk budget rule
+            setTodayRiskBudget((latest.totalValue || 0) * 0.01);
           }
         }
 
@@ -59,12 +56,66 @@ export function CommandCenter() {
           }
           setCurrentStreak(streak);
         }
+
+        // Fetch Priorities
+        const pRes = await fetch('/api/priorities');
+        if (pRes.ok) {
+          const pData = await pRes.json();
+          setPriorities(pData);
+        }
       } catch (err) {
         console.error("Error loading dashboard data:", err);
       }
     }
     loadDashboardData();
   }, []);
+
+  const handleTogglePriority = async (id: string, currentStatus: boolean) => {
+    // Optimistic update
+    setPriorities(prev => prev.map(p => p.id === id ? { ...p, done: !currentStatus } : p));
+    try {
+      await fetch('/api/priorities', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, done: !currentStatus })
+      });
+    } catch (error) {
+      console.error("Failed to toggle priority", error);
+      // Revert on error
+      setPriorities(prev => prev.map(p => p.id === id ? { ...p, done: currentStatus } : p));
+    }
+  };
+
+  const handleAddPriority = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPriorityLabel.trim()) return;
+    setIsAddingPriority(true);
+    try {
+      const res = await fetch('/api/priorities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: newPriorityLabel })
+      });
+      if (res.ok) {
+        const newP = await res.json();
+        setPriorities(prev => [...prev, newP]);
+        setNewPriorityLabel("");
+      }
+    } catch (error) {
+      console.error("Failed to add priority", error);
+    } finally {
+      setIsAddingPriority(false);
+    }
+  };
+
+  const handleDeletePriority = async (id: string) => {
+    setPriorities(prev => prev.filter(p => p.id !== id));
+    try {
+      await fetch(`/api/priorities?id=${id}`, { method: 'DELETE' });
+    } catch (error) {
+      console.error("Failed to delete priority", error);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -83,16 +134,45 @@ export function CommandCenter() {
           <h3 className="text-lg font-bold uppercase tracking-widest border-b border-white/20 pb-2">Today's Priorities</h3>
           <div className="space-y-3">
             {priorities.map((p) => (
-              <div key={p.id} className="flex items-center space-x-3 bg-white/5 p-3 rounded-lg border border-white/10">
-                <Checkbox id={`todo-${p.id}`} checked={p.done} className="border-white/50 data-[state=checked]:bg-white data-[state=checked]:text-black" />
-                <label 
-                  htmlFor={`todo-${p.id}`} 
-                  className={`text-sm font-medium leading-none cursor-pointer ${p.done ? 'line-through text-gray-500' : 'text-white'}`}
+              <div key={p.id} className="flex items-center justify-between bg-white/5 p-3 rounded-lg border border-white/10 group">
+                <div className="flex items-center space-x-3">
+                  <Checkbox 
+                    id={`todo-${p.id}`} 
+                    checked={p.done} 
+                    onCheckedChange={() => handleTogglePriority(p.id, p.done)}
+                    className="border-white/50 data-[state=checked]:bg-white data-[state=checked]:text-black" 
+                  />
+                  <label 
+                    htmlFor={`todo-${p.id}`} 
+                    className={`text-sm font-medium leading-none cursor-pointer ${p.done ? 'line-through text-gray-500' : 'text-white'}`}
+                  >
+                    {p.label}
+                  </label>
+                </div>
+                <button 
+                  onClick={() => handleDeletePriority(p.id)} 
+                  className="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  {p.label}
-                </label>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
               </div>
             ))}
+            <form onSubmit={handleAddPriority} className="flex items-center gap-2 mt-4">
+              <input
+                type="text"
+                placeholder="Add a new priority..."
+                value={newPriorityLabel}
+                onChange={e => setNewPriorityLabel(e.target.value)}
+                className="flex-1 bg-transparent border-b border-white/20 px-2 py-1 text-sm focus:outline-none focus:border-white text-white placeholder:text-gray-600"
+              />
+              <button 
+                type="submit" 
+                disabled={isAddingPriority || !newPriorityLabel.trim()} 
+                className="text-xs uppercase font-bold tracking-widest text-gray-400 hover:text-white disabled:opacity-50"
+              >
+                Add
+              </button>
+            </form>
           </div>
         </div>
 
