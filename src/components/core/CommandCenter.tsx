@@ -1,12 +1,19 @@
 "use client";
 
-import { useAppStore } from "@/store/appStore";
+import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, TrendingUp, Target, Calendar } from "lucide-react";
 
 export function CommandCenter() {
-  const { netWorth, cashAvailable, todayRiskBudget } = useAppStore();
+  const [netWorth, setNetWorth] = useState(0);
+  const [cashAvailable, setCashAvailable] = useState(0);
+  const [todayRiskBudget, setTodayRiskBudget] = useState(0);
+  
+  const [habitsCompleted, setHabitsCompleted] = useState(0);
+  const [totalHabits, setTotalHabits] = useState(0);
+  
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   const priorities = [
     { id: '1', label: "Review watchlist", done: false },
@@ -14,6 +21,50 @@ export function CommandCenter() {
     { id: '3', label: "Workout", done: true },
     { id: '4', label: "Journal yesterday's trades", done: false },
   ];
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      try {
+        // Fetch Net Worth
+        const nwRes = await fetch('/api/networth');
+        if (nwRes.ok) {
+          const nwData = await nwRes.json();
+          if (nwData.length > 0) {
+            const latest = nwData[nwData.length - 1];
+            setNetWorth(latest.totalValue || 0);
+            setCashAvailable(latest.liquidCash || 0);
+            setTodayRiskBudget((latest.totalValue || 0) * 0.01); // 1% risk budget rule
+          }
+        }
+
+        // Fetch Habits
+        const hRes = await fetch('/api/habits');
+        if (hRes.ok) {
+          const hData = await hRes.json();
+          setTotalHabits(hData.length);
+          setHabitsCompleted(hData.filter((h: any) => h.completed).length);
+        }
+
+        // Fetch Trades for Streak
+        const tRes = await fetch('/api/trades');
+        if (tRes.ok) {
+          const tData = await tRes.json();
+          let streak = 0;
+          for (let i = 0; i < tData.length; i++) {
+            if (Number(tData[i].pnl) > 0) {
+              streak++;
+            } else {
+              break;
+            }
+          }
+          setCurrentStreak(streak);
+        }
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+      }
+    }
+    loadDashboardData();
+  }, []);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -74,7 +125,7 @@ export function CommandCenter() {
                   <p className="font-semibold">${cashAvailable.toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500 uppercase">Risk Budget</p>
+                  <p className="text-xs text-gray-500 uppercase">Risk Budget (1%)</p>
                   <p className="font-semibold text-red-400">${todayRiskBudget.toLocaleString()}</p>
                 </div>
               </div>
@@ -91,12 +142,12 @@ export function CommandCenter() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-xs text-gray-500 uppercase">Current Streak</p>
-                <p className="text-2xl font-bold text-green-400">4 Days</p>
+                <p className="text-xs text-gray-500 uppercase">Current Win Streak</p>
+                <p className="text-2xl font-bold text-green-400">{currentStreak} Trades</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase">Economic Events</p>
-                <p className="font-semibold">CPI Data @ 8:30 AM</p>
+                <p className="font-semibold text-gray-500 italic">Integration Pending...</p>
               </div>
             </CardContent>
           </Card>
@@ -112,17 +163,17 @@ export function CommandCenter() {
             <CardContent className="flex justify-between items-center">
               <div>
                 <p className="text-xs text-gray-500 uppercase">Focus Time Today</p>
-                <p className="text-xl font-bold">2h 45m</p>
+                <p className="text-xl font-bold text-gray-500 italic">Integration Pending...</p>
               </div>
               <div className="text-right flex items-center gap-4">
                 <div>
                   <p className="text-xs text-gray-500 uppercase">Habits</p>
-                  <p className="font-semibold">2/5 Completed</p>
+                  <p className="font-semibold">{habitsCompleted}/{totalHabits} Completed</p>
                 </div>
                 <div className="h-10 w-px bg-white/20 mx-2"></div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-gray-500 italic">
                   <Calendar className="w-5 h-5 text-gray-400" />
-                  <p className="font-semibold">3 Meetings Left</p>
+                  <p className="font-semibold">Integration Pending...</p>
                 </div>
               </div>
             </CardContent>
