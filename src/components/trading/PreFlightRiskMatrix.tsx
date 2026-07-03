@@ -1,18 +1,33 @@
 "use client";
 
-import { useState } from "react";
-import { useAppStore } from "@/store/appStore";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function PreFlightRiskMatrix() {
-  const { netWorth } = useAppStore();
-  
-  const [accountBalance, setAccountBalance] = useState<string>(netWorth.toString());
+  const [accountBalance, setAccountBalance] = useState<string>("0");
   const [entryPrice, setEntryPrice] = useState<string>("");
   const [stopLoss, setStopLoss] = useState<string>("");
   const [riskPercent, setRiskPercent] = useState<string>("1");
+
+  useEffect(() => {
+    async function loadNetWorth() {
+      try {
+        const res = await fetch('/api/networth');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.length > 0) {
+            const latest = data[data.length - 1];
+            setAccountBalance(latest.totalValue.toString());
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load net worth", err);
+      }
+    }
+    loadNetWorth();
+  }, []);
   
   const balance = parseFloat(accountBalance) || 0;
   const entry = parseFloat(entryPrice) || 0;

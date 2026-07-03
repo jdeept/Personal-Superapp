@@ -10,14 +10,6 @@ interface AppState {
   // Trading Hub specific state
   activeTradingView: TradingViewType;
   setActiveTradingView: (view: TradingViewType) => void;
-  
-  // Command Center state mocks
-  netWorth: number;
-  cashAvailable: number;
-  todayRiskBudget: number;
-  
-  // To-do toggle action (mock)
-  toggleTodo: (id: string) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -25,14 +17,5 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveHub: (hub) => set({ activeHub: hub }),
   
   activeTradingView: 'dashboard',
-  setActiveTradingView: (view) => set({ activeTradingView: view }),
-  
-  netWorth: 125430.50,
-  cashAvailable: 15000.00,
-  todayRiskBudget: 250.00,
-  
-  toggleTodo: (id) => set((state) => {
-    // We'd actually update a list here, but this is a placeholder
-    return state;
-  })
+  setActiveTradingView: (view) => set({ activeTradingView: view })
 }));

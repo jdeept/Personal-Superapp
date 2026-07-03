@@ -231,10 +231,6 @@ export function CommandCenter() {
                 <p className="text-xs text-gray-500 uppercase">Current Win Streak</p>
                 <p className="text-2xl font-bold text-green-400">{currentStreak} Trades</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 uppercase">Economic Events</p>
-                <p className="font-semibold text-gray-500 italic">Integration Pending...</p>
-              </div>
             </CardContent>
           </Card>
 
@@ -247,11 +243,7 @@ export function CommandCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-between items-center">
-              <div>
-                <p className="text-xs text-gray-500 uppercase">Focus Time Today</p>
-                <p className="text-xl font-bold text-gray-500 italic">Integration Pending...</p>
-              </div>
-              <div className="text-right flex items-center gap-4">
+              <div className="flex items-center gap-4">
                 <div>
                   <p className="text-xs text-gray-500 uppercase">Habits</p>
                   <p className="font-semibold">{habitsCompleted}/{totalHabits} Completed</p>

@@ -204,19 +204,6 @@ export function DecisionHub() {
           </CardContent>
         </Card>
 
-        {/* Keeping placeholders for future features */}
-        <Card className="bg-transparent border-white/20 text-white opacity-50 cursor-not-allowed">
-          <CardHeader>
-            <CardTitle className="uppercase tracking-widest flex items-center gap-3 text-lg">
-              <ShieldAlert className="w-6 h-6 text-gray-400" />
-              Risk Matrix
-            </CardTitle>
-            <CardDescription className="text-gray-400">Evaluate impact vs probability.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <p className="text-sm italic text-gray-500 mt-8 text-center">Integration Pending...</p>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="mt-12">
