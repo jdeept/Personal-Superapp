@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, TrendingUp, Target } from "lucide-react";
+import { toast } from "sonner";
 
 export function CommandCenter() {
   const [netWorth, setNetWorth] = useState(0);
@@ -79,8 +80,10 @@ export function CommandCenter() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, done: !currentStatus })
       });
+      toast.success(currentStatus ? "Priority uncompleted" : "Priority completed!");
     } catch (error) {
       console.error("Failed to toggle priority", error);
+      toast.error("Failed to update priority.");
       // Revert on error
       setPriorities(prev => prev.map(p => p.id === id ? { ...p, done: currentStatus } : p));
     }
@@ -100,9 +103,13 @@ export function CommandCenter() {
         const newP = await res.json();
         setPriorities(prev => [...prev, newP]);
         setNewPriorityLabel("");
+        toast.success("Priority added!");
+      } else {
+        toast.error("Failed to add priority.");
       }
     } catch (error) {
       console.error("Failed to add priority", error);
+      toast.error("Failed to add priority.");
     } finally {
       setIsAddingPriority(false);
     }
@@ -111,9 +118,15 @@ export function CommandCenter() {
   const handleDeletePriority = async (id: string) => {
     setPriorities(prev => prev.filter(p => p.id !== id));
     try {
-      await fetch(`/api/priorities?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/priorities?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success("Priority deleted!");
+      } else {
+        toast.error("Failed to delete priority.");
+      }
     } catch (error) {
       console.error("Failed to delete priority", error);
+      toast.error("Failed to delete priority.");
     }
   };
 

@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const PRESET_CATEGORIES = [
   "Trading Playbooks",
@@ -69,9 +70,13 @@ export function KnowledgeHub() {
         setCategory(PRESET_CATEGORIES[0]);
         setIsDialogOpen(false);
         fetchDocuments(); // Refresh list
+        toast.success("Document created successfully!");
+      } else {
+        toast.error("Failed to create document.");
       }
     } catch (error) {
       console.error("Failed to create document:", error);
+      toast.error("Failed to create document.");
     } finally {
       setIsSubmitting(false);
     }

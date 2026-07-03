@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export function DecisionHub() {
   const [decisions, setDecisions] = useState<any[]>([]);
@@ -79,9 +80,13 @@ export function DecisionHub() {
         setAlternatives("");
         setIsNewDialogOpen(false);
         fetchDecisions();
+        toast.success("Decision logged successfully!");
+      } else {
+        toast.error("Failed to log decision.");
       }
     } catch (error) {
       console.error("Failed to create decision:", error);
+      toast.error("Failed to log decision.");
     } finally {
       setIsSubmitting(false);
     }
@@ -104,9 +109,13 @@ export function DecisionHub() {
         setSelectedDecision(null);
         setIsEvalDialogOpen(false);
         fetchDecisions();
+        toast.success("Decision evaluated successfully!");
+      } else {
+        toast.error("Failed to evaluate decision.");
       }
     } catch (error) {
       console.error("Failed to evaluate decision:", error);
+      toast.error("Failed to evaluate decision.");
     } finally {
       setIsEvaluating(false);
     }
