@@ -83,7 +83,7 @@ export function FinanceHub() {
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#000', borderColor: '#ffffff20', color: '#fff' }}
                   itemStyle={{ color: '#fff' }}
-                  formatter={(val: number) => [`$${val.toLocaleString()}`, 'Net Worth']}
+                  formatter={(val: any) => [`$${Number(val).toLocaleString()}`, 'Net Worth']}
                 />
                 <Area 
                   type="monotone" 

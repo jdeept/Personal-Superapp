@@ -32,7 +32,7 @@ export function PreMarketGuard() {
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-md bg-black text-white border-white/20 select-none pointer-events-auto" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} showCloseButton={false}>
+      <DialogContent className="sm:max-w-md bg-black text-white border-white/20 select-none pointer-events-auto" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold uppercase tracking-wider text-center">Discipline Gatekeeper</DialogTitle>
           <DialogDescription className="text-center text-gray-400">

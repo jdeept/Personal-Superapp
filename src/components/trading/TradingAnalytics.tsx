@@ -85,7 +85,7 @@ export function TradingAnalytics() {
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#000', borderColor: '#ffffff20', color: '#fff' }}
                   itemStyle={{ color: '#fff' }}
-                  formatter={(value: number) => [`$${value.toLocaleString()}`, 'Balance']}
+                  formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Balance']}
                 />
                 <Area 
                   type="monotone" 
