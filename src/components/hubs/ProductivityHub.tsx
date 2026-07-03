@@ -6,19 +6,30 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Play, Square, RotateCcw } from "lucide-react";
 
-const initialHabits = [
-  { id: '1', name: 'Morning Review', completed: true },
-  { id: '2', name: 'Workout', completed: true },
-  { id: '3', name: 'Read 20 pages', completed: false },
-  { id: '4', name: 'Evening Reflection', completed: false },
-];
-
 export function ProductivityHub() {
-  const [habits, setHabits] = useState(initialHabits);
+  const [habits, setHabits] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Pomodoro State
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    async function fetchHabits() {
+      try {
+        const res = await fetch('/api/habits');
+        if (res.ok) {
+          const data = await res.json();
+          setHabits(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch habits:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHabits();
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -47,8 +58,23 @@ export function ProductivityHub() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const toggleHabit = (id: string) => {
-    setHabits(habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h));
+  const toggleHabit = async (id: string) => {
+    // Optimistic UI update
+    const updatedHabits = habits.map(h => h.id === id ? { ...h, completed: !h.completed } : h);
+    setHabits(updatedHabits);
+    
+    const habitToUpdate = updatedHabits.find(h => h.id === id);
+    if (habitToUpdate) {
+      try {
+        await fetch('/api/habits', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, completed: habitToUpdate.completed })
+        });
+      } catch (error) {
+        console.error("Failed to update habit:", error);
+      }
+    }
   };
 
   return (

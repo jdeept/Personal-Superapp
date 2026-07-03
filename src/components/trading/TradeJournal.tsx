@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Table, 
   TableBody, 
@@ -11,15 +11,27 @@ import {
   TableRow 
 } from "@/components/ui/table";
 
-// Mock data
-const mockTrades = [
-  { id: '1', date: '2023-10-25', ticker: 'AAPL', type: 'Long', entry: 170.50, exit: 175.00, pnl: 450.00, tags: ['#VWAP_Bounce', '#Flawless_Execution'] },
-  { id: '2', date: '2023-10-26', ticker: 'TSLA', type: 'Short', entry: 210.00, exit: 215.50, pnl: -550.00, tags: ['#Breakout_Failure', '#FOMO_Entry'] },
-  { id: '3', date: '2023-10-27', ticker: 'SPY', type: 'Long', entry: 410.20, exit: 412.80, pnl: 260.00, tags: ['#Support_Long'] },
-];
 
 export function TradeJournal() {
-  const [trades, setTrades] = useState(mockTrades);
+  const [trades, setTrades] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTrades() {
+      try {
+        const res = await fetch('/api/trades');
+        if (res.ok) {
+          const data = await res.json();
+          setTrades(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch trades:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTrades();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -43,32 +55,42 @@ export function TradeJournal() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {trades.map((trade) => (
-              <TableRow key={trade.id} className="border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
-                <TableCell className="font-medium text-gray-300">{trade.date}</TableCell>
-                <TableCell className="font-bold">{trade.ticker}</TableCell>
-                <TableCell>{trade.type}</TableCell>
-                <TableCell>${trade.entry.toFixed(2)}</TableCell>
-                <TableCell>${trade.exit.toFixed(2)}</TableCell>
-                <TableCell className={`text-right font-bold ${trade.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
-                </TableCell>
-                <TableCell className="flex flex-wrap gap-1">
-                  {trade.tags.map(tag => (
-                    <span 
-                      key={tag} 
-                      className={`text-xs px-2 py-1 rounded-sm border ${
-                        tag.includes('FOMO') || tag.includes('Chasing') || tag.includes('Impatient') 
-                          ? 'border-red-500/50 text-red-400 bg-red-950/30' 
-                          : 'border-white/20 text-gray-300 bg-white/5'
-                      }`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </TableCell>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">Loading trades...</TableCell>
               </TableRow>
-            ))}
+            ) : trades.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">No trades logged yet.</TableCell>
+              </TableRow>
+            ) : (
+              trades.map((trade) => (
+                <TableRow key={trade.id} className="border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
+                  <TableCell className="font-medium text-gray-300">{trade.date}</TableCell>
+                  <TableCell className="font-bold">{trade.ticker}</TableCell>
+                  <TableCell>{trade.type}</TableCell>
+                  <TableCell>${Number(trade.entry).toFixed(2)}</TableCell>
+                  <TableCell>${Number(trade.exit).toFixed(2)}</TableCell>
+                  <TableCell className={`text-right font-bold ${trade.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {trade.pnl >= 0 ? '+' : ''}${Number(trade.pnl).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="flex flex-wrap gap-1">
+                    {trade.tags && trade.tags.map((tag: string) => (
+                      <span 
+                        key={tag} 
+                        className={`text-xs px-2 py-1 rounded-sm border ${
+                          tag.includes('FOMO') || tag.includes('Chasing') || tag.includes('Impatient') 
+                            ? 'border-red-500/50 text-red-400 bg-red-950/30' 
+                            : 'border-white/20 text-gray-300 bg-white/5'
+                        }`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

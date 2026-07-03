@@ -54,10 +54,42 @@ export function CsvImport() {
     }
   };
 
-  const handleImport = () => {
-    // This would typically send data to MongoDB via API route
-    alert(`Successfully imported ${parsedData?.length} trades! (Mock)`);
-    setParsedData(null);
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleImport = async () => {
+    if (!parsedData) return;
+    
+    setIsImporting(true);
+    try {
+      // Map PapaParse output to match Trade schema
+      const formattedTrades = parsedData.map((row) => ({
+        date: row.Date || row.date,
+        ticker: row.Ticker || row.ticker || row.Symbol || row.symbol,
+        type: row.Type || row.type || row.Action || 'Long',
+        entry: parseFloat(row.Entry || row.entry || row.Price || 0),
+        exit: parseFloat(row.Exit || row.exit || row.Price || 0),
+        pnl: parseFloat(row.PnL || row.pnl || row.Net || 0),
+        tags: [] // Default empty tags for imported trades
+      }));
+
+      const res = await fetch('/api/trades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formattedTrades)
+      });
+
+      if (res.ok) {
+        alert(`Successfully imported ${formattedTrades.length} trades!`);
+        setParsedData(null);
+      } else {
+        alert("Failed to import trades.");
+      }
+    } catch (error) {
+      console.error("Import error:", error);
+      alert("Error importing trades.");
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return (
@@ -119,9 +151,10 @@ export function CsvImport() {
 
               <Button 
                 onClick={handleImport}
+                disabled={isImporting}
                 className="w-full bg-white text-black hover:bg-gray-200 uppercase font-bold py-6 text-lg transition-all"
               >
-                Import {parsedData.length} Trades to Journal
+                {isImporting ? 'Importing...' : `Import ${parsedData.length} Trades to Journal`}
               </Button>
             </div>
           )}
