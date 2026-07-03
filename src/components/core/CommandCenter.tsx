@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, TrendingUp, Target, Calendar } from "lucide-react";
+import { Clock, TrendingUp, Target } from "lucide-react";
 
 export function CommandCenter() {
   const [netWorth, setNetWorth] = useState(0);
@@ -169,11 +169,6 @@ export function CommandCenter() {
                 <div>
                   <p className="text-xs text-gray-500 uppercase">Habits</p>
                   <p className="font-semibold">{habitsCompleted}/{totalHabits} Completed</p>
-                </div>
-                <div className="h-10 w-px bg-white/20 mx-2"></div>
-                <div className="flex items-center gap-2 text-gray-500 italic">
-                  <Calendar className="w-5 h-5 text-gray-400" />
-                  <p className="font-semibold">Integration Pending...</p>
                 </div>
               </div>
             </CardContent>
