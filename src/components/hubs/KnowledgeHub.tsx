@@ -102,7 +102,7 @@ export function KnowledgeHub() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h2 className="text-3xl font-bold uppercase tracking-widest">Knowledge Hub</h2>
           <p className="text-gray-400 mt-2">Your second brain. Store information that supports better decisions.</p>

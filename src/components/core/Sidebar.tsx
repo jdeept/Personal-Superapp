@@ -23,40 +23,58 @@ const HUBS: { id: HubType; label: string; icon: React.FC<{className?: string}> }
 ];
 
 export function Sidebar() {
-  const { activeHub, setActiveHub } = useAppStore();
+  const { activeHub, setActiveHub, isMobileMenuOpen, setIsMobileMenuOpen } = useAppStore();
 
   return (
-    <aside className="w-64 bg-black border-r border-white/10 h-screen flex flex-col fixed left-0 top-0 text-white">
-      <div className="p-6">
-        <h1 className="font-bold text-xl tracking-widest uppercase">Personal OS</h1>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-40 md:hidden" 
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
       
-      <nav className="flex-1 px-4 py-4 space-y-2">
-        {HUBS.map((hub) => {
-          const Icon = hub.icon;
-          const isActive = activeHub === hub.id;
-          
-          return (
-            <button
-              key={hub.id}
-              onClick={() => setActiveHub(hub.id)}
-              className={cn(
-                "w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left",
-                isActive 
-                  ? "bg-white text-black" 
-                  : "text-gray-400 hover:bg-white/10 hover:text-white"
-              )}
-            >
-              <Icon className="w-5 h-5" />
-              <span>{hub.label}</span>
-            </button>
-          )
-        })}
-      </nav>
-      
-      <div className="p-6 border-t border-white/10 text-xs text-gray-500 uppercase tracking-widest">
-        Version 1.0.0
-      </div>
-    </aside>
+      <aside 
+        className={cn(
+          "w-64 bg-black border-r border-white/10 h-screen flex flex-col fixed left-0 top-0 text-white z-50 transition-transform duration-300 ease-in-out md:translate-x-0",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="p-6 flex items-center justify-between">
+          <h1 className="font-bold text-xl tracking-widest uppercase">Personal OS</h1>
+        </div>
+        
+        <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
+          {HUBS.map((hub) => {
+            const Icon = hub.icon;
+            const isActive = activeHub === hub.id;
+            
+            return (
+              <button
+                key={hub.id}
+                onClick={() => {
+                  setActiveHub(hub.id);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-left",
+                  isActive 
+                    ? "bg-white text-black" 
+                    : "text-gray-400 hover:bg-white/10 hover:text-white"
+                )}
+              >
+                <Icon className="w-5 h-5" />
+                <span>{hub.label}</span>
+              </button>
+            )
+          })}
+        </nav>
+        
+        <div className="p-6 border-t border-white/10 text-xs text-gray-500 uppercase tracking-widest">
+          Version 1.0.0
+        </div>
+      </aside>
+    </>
   );
 }

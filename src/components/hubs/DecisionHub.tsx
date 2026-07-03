@@ -219,10 +219,10 @@ export function DecisionHub() {
           <div className="space-y-6">
             {decisions.map(decision => (
               <Card key={decision.id} className="bg-transparent border-white/20 text-white">
-                <CardHeader className="pb-3 border-b border-white/10 flex flex-row items-start justify-between">
+                <CardHeader className="pb-3 border-b border-white/10 flex flex-col md:flex-row items-start md:justify-between gap-4">
                   <div>
                     <CardTitle className="text-lg font-bold">{decision.title}</CardTitle>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                    <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-400">
                       <span>Logged: {new Date(decision.createdAt).toLocaleDateString()}</span>
                       <span>Target Review: {new Date(decision.reviewDate).toLocaleDateString()}</span>
                       <span className={`flex items-center gap-1 ${decision.status === 'REVIEWED' ? 'text-green-400' : 'text-yellow-400'}`}>

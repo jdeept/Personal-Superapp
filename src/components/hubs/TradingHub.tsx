@@ -35,7 +35,7 @@ export function TradingHub() {
     <div className="animate-in fade-in duration-500">
       
       {/* Sub Navigation */}
-      <div className="flex space-x-2 border-b border-white/20 pb-4 mb-8">
+      <div className="flex space-x-2 border-b border-white/20 pb-4 mb-8 overflow-x-auto whitespace-nowrap hide-scrollbar">
         {navItems.map((item) => (
           <button
             key={item.id}

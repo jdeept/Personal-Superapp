@@ -40,8 +40,8 @@ export function TradeJournal() {
         <p className="text-gray-400 mt-2">Your interactive ledger and self-audit tool.</p>
       </div>
 
-      <div className="border border-white/20 rounded-md bg-black">
-        <Table>
+      <div className="border border-white/20 rounded-md bg-black overflow-x-auto">
+        <Table className="min-w-[800px]">
           <TableCaption className="text-gray-500 pb-4">A list of your recent trades.</TableCaption>
           <TableHeader className="bg-white/5">
             <TableRow className="border-white/20 hover:bg-transparent">

@@ -10,12 +10,18 @@ interface AppState {
   // Trading Hub specific state
   activeTradingView: TradingViewType;
   setActiveTradingView: (view: TradingViewType) => void;
+  // Mobile Sidebar state
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   activeHub: 'command-center',
-  setActiveHub: (hub) => set({ activeHub: hub }),
+  setActiveHub: (hub) => set({ activeHub: hub, isMobileMenuOpen: false }),
   
   activeTradingView: 'dashboard',
-  setActiveTradingView: (view) => set({ activeTradingView: view })
+  setActiveTradingView: (view) => set({ activeTradingView: view }),
+  
+  isMobileMenuOpen: false,
+  setIsMobileMenuOpen: (isOpen) => set({ isMobileMenuOpen: isOpen })
 }));
