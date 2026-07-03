@@ -1,103 +1,138 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Mock data
-const mockEquityData = [
-  { date: 'Oct 01', balance: 100000 },
-  { date: 'Oct 08', balance: 102000 },
-  { date: 'Oct 15', balance: 101500 },
-  { date: 'Oct 22', balance: 105000 },
-  { date: 'Oct 29', balance: 104200 },
-  { date: 'Nov 05', balance: 108000 },
-  { date: 'Nov 12', balance: 112000 },
-];
-
 export function TradingAnalytics() {
+  const [trades, setTrades] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTrades() {
+      try {
+        const res = await fetch('/api/trades');
+        if (res.ok) {
+          const data = await res.json();
+          // reverse because api returns newest first, but chart wants oldest first
+          setTrades(data.reverse());
+        }
+      } catch (error) {
+        console.error("Failed to fetch trades:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTrades();
+  }, []);
+
+  // Compute metrics
+  let totalTrades = trades.length;
+  let winningTrades = 0;
+  let grossProfit = 0;
+  let grossLoss = 0;
+  
+  let currentBalance = 10000; // Starting baseline
+  const equityCurve = trades.map((t, idx) => {
+    const pnl = Number(t.pnl);
+    if (pnl > 0) {
+      winningTrades++;
+      grossProfit += pnl;
+    } else {
+      grossLoss += Math.abs(pnl);
+    }
+    currentBalance += pnl;
+    return {
+      tradeIndex: idx + 1,
+      balance: currentBalance,
+      pnl: pnl
+    };
+  });
+
+  // Calculate Win Rate and Profit Factor
+  const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
+  const profitFactor = grossLoss > 0 ? (grossProfit / grossLoss) : (grossProfit > 0 ? 99 : 0);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold uppercase tracking-widest">Performance Analytics</h2>
-        <p className="text-gray-400 mt-2">Your real-time scoreboard and equity curves.</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-transparent border-white/20 text-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-gray-400">Win Rate</CardTitle>
+        <Card className="bg-black border-white/10 text-white">
+          <CardHeader>
+            <CardTitle className="text-gray-400 font-normal uppercase tracking-wider text-sm">Win Rate</CardTitle>
+            <div className="text-4xl font-bold">{winRate.toFixed(1)}%</div>
           </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-green-400">68%</p>
-            <p className="text-sm text-gray-400 mt-1">Last 30 Days</p>
-          </CardContent>
         </Card>
-
-        <Card className="bg-transparent border-white/20 text-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-gray-400">Profit Factor</CardTitle>
+        <Card className="bg-black border-white/10 text-white">
+          <CardHeader>
+            <CardTitle className="text-gray-400 font-normal uppercase tracking-wider text-sm">Profit Factor</CardTitle>
+            <div className="text-4xl font-bold">{profitFactor.toFixed(2)}</div>
           </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-white">2.4</p>
-            <p className="text-sm text-gray-400 mt-1">Gross Gains / Gross Losses</p>
-          </CardContent>
         </Card>
-
-        <Card className="bg-transparent border-white/20 text-white">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-bold uppercase tracking-widest text-gray-400">Top Strategy</CardTitle>
+        <Card className="bg-black border-white/10 text-white">
+          <CardHeader>
+            <CardTitle className="text-gray-400 font-normal uppercase tracking-wider text-sm">Total Trades</CardTitle>
+            <div className="text-4xl font-bold">{totalTrades}</div>
           </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-white">#VWAP_Bounce</p>
-            <p className="text-sm text-green-400 mt-1">+ $4,200 P&L</p>
-          </CardContent>
         </Card>
       </div>
 
-      <Card className="bg-transparent border-white/20 text-white">
+      <Card className="bg-black border-white/10 text-white">
         <CardHeader>
-          <CardTitle className="uppercase tracking-widest">Equity Curve</CardTitle>
-          <CardDescription className="text-gray-400">Account balance progression over time.</CardDescription>
+          <CardTitle>Equity Curve</CardTitle>
+          <CardDescription className="text-gray-400">Cumulative performance over {totalTrades} trades (Base: $10,000).</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px] w-full mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={mockEquityData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ffffff" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" vertical={false} />
-                <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis 
-                  stroke="#888888" 
-                  fontSize={12} 
-                  tickLine={false} 
-                  axisLine={false} 
-                  tickFormatter={(value) => `$${value/1000}k`}
-                  domain={['dataMin - 2000', 'dataMax + 2000']}
-                />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#000', borderColor: '#ffffff20', color: '#fff' }}
-                  itemStyle={{ color: '#fff' }}
-                  formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Balance']}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="balance" 
-                  stroke="#ffffff" 
-                  strokeWidth={2}
-                  fillOpacity={1} 
-                  fill="url(#colorBalance)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {loading ? (
+             <div className="h-[400px] flex items-center justify-center text-gray-500">Loading trades...</div>
+          ) : trades.length === 0 ? (
+             <div className="h-[400px] flex items-center justify-center text-gray-500">No trades imported yet.</div>
+          ) : (
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={equityCurve}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#fff" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#fff" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                  <XAxis 
+                    dataKey="tradeIndex" 
+                    stroke="#ffffff50" 
+                    tick={{ fill: '#ffffff50', fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis 
+                    domain={['auto', 'auto']}
+                    stroke="#ffffff50" 
+                    tick={{ fill: '#ffffff50', fontSize: 12 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(val: number) => `$${val}`}
+                  />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#000', borderColor: '#ffffff20', color: '#fff' }}
+                    itemStyle={{ color: '#fff' }}
+                    formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Balance']}
+                    labelFormatter={(label) => `Trade #${label}`}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="balance" 
+                    stroke="#fff" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorBalance)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

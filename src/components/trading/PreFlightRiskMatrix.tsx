@@ -5,7 +5,6 @@ import { useAppStore } from "@/store/appStore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 
 export function PreFlightRiskMatrix() {
   const { netWorth } = useAppStore();
@@ -27,11 +26,6 @@ export function PreFlightRiskMatrix() {
     const riskPerShare = Math.abs(entry - sl);
     positionSize = Math.floor(riskAmount / riskPerShare);
   }
-
-  const handleLogSetup = () => {
-    // We would push this to MongoDB via an API route here
-    alert("Setup Logged! (Mock)");
-  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -93,14 +87,6 @@ export function PreFlightRiskMatrix() {
             <p className="text-5xl font-bold text-white">{positionSize}</p>
             <p className="text-sm text-red-400 pt-2">Risking ${riskAmount.toFixed(2)}</p>
           </div>
-
-          <Button 
-            onClick={handleLogSetup}
-            disabled={positionSize <= 0}
-            className="w-full bg-white text-black hover:bg-gray-200 uppercase font-bold py-6 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Log This Setup
-          </Button>
         </CardContent>
       </Card>
     </div>
