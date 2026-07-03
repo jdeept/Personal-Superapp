@@ -69,17 +69,10 @@ export function CommandCenter() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      <div className="flex justify-between items-end">
+      <div className="mb-6">
         <div>
           <h2 className="text-4xl font-bold uppercase tracking-tight">Good Morning</h2>
           <p className="text-gray-400 mt-2">Here is your daily overview.</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-500 uppercase tracking-widest">Market Status</p>
-          <p className="text-xl font-bold flex items-center justify-end gap-2 text-green-400">
-            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-            Opens in 1h 15m
-          </p>
         </div>
       </div>
 
