@@ -9,6 +9,7 @@ import { ProductivityHub } from "@/components/hubs/ProductivityHub";
 import { DecisionHub } from "@/components/hubs/DecisionHub";
 import { AnalyticsHub } from "@/components/hubs/AnalyticsHub";
 import { KnowledgeHub } from "@/components/hubs/KnowledgeHub";
+import { JarvisAssistant } from "@/components/core/JarvisAssistant";
 
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,7 @@ export function AppShell() {
   };
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex min-h-screen bg-black text-white relative">
       {/* Sidebar (Responsive overlay on mobile, fixed on desktop) */}
       <Sidebar />
       
@@ -62,6 +63,9 @@ export function AppShell() {
           {renderActiveHub()}
         </main>
       </div>
+
+      {/* Global AI Assistant */}
+      <JarvisAssistant />
     </div>
   );
 }
