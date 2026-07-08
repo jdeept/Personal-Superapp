@@ -9,13 +9,12 @@ import { ProductivityHub } from "@/components/hubs/ProductivityHub";
 import { DecisionHub } from "@/components/hubs/DecisionHub";
 import { AnalyticsHub } from "@/components/hubs/AnalyticsHub";
 import { KnowledgeHub } from "@/components/hubs/KnowledgeHub";
-import { JarvisAssistant } from "@/components/core/JarvisAssistant";
 
-import { Menu } from "lucide-react";
+import { Menu, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function AppShell() {
-  const { activeHub, isMobileMenuOpen, setIsMobileMenuOpen } = useAppStore();
+  const { activeHub, isMobileMenuOpen, setIsMobileMenuOpen, setIsJarvisMode } = useAppStore();
 
   const renderActiveHub = () => {
     switch (activeHub) {
@@ -64,8 +63,15 @@ export function AppShell() {
         </main>
       </div>
 
-      {/* Global AI Assistant */}
-      <JarvisAssistant />
+      {/* Return to JARVIS Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => setIsJarvisMode(true)}
+          className="w-14 h-14 rounded-full bg-cyan-900/40 border border-cyan-500/30 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.5)] hover:bg-cyan-900/60 hover:scale-105 hover:shadow-[0_0_25px_rgba(6,182,212,0.8)] transition-all"
+        >
+          <Bot className="w-6 h-6" />
+        </Button>
+      </div>
     </div>
   );
 }

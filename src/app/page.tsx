@@ -1,11 +1,5 @@
-import { PreMarketGuard } from "@/components/core/PreMarketGuard";
-import { AppShell } from "@/components/core/AppShell";
+import { RootView } from "@/components/core/RootView";
 
 export default function Home() {
-  return (
-    <>
-      <PreMarketGuard />
-      <AppShell />
-    </>
-  );
+  return <RootView />;
 }

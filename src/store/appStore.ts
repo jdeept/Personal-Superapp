@@ -13,6 +13,10 @@ interface AppState {
   // Mobile Sidebar state
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (isOpen: boolean) => void;
+
+  // JARVIS Mode state
+  isJarvisMode: boolean;
+  setIsJarvisMode: (isJarvis: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -23,5 +27,8 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveTradingView: (view) => set({ activeTradingView: view }),
   
   isMobileMenuOpen: false,
-  setIsMobileMenuOpen: (isOpen) => set({ isMobileMenuOpen: isOpen })
+  setIsMobileMenuOpen: (isOpen) => set({ isMobileMenuOpen: isOpen }),
+
+  isJarvisMode: true,
+  setIsJarvisMode: (isJarvis) => set({ isJarvisMode: isJarvis })
 }));
